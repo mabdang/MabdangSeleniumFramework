@@ -1,0 +1,14 @@
+CaseID,Title,ScenarioType,Run,StepID,Action,Locator,TestData,Expected
+TC001,Valid Login,Positive,TRUE,1,navigate,,{global.baseURL},
+TC001,Valid Login,Positive,TRUE,2,click,LoginLink,,
+TC001,Valid Login,Positive,TRUE,3,type,EmailField,{global.DefaultEmail},
+TC001,Valid Login,Positive,TRUE,4,type,PasswordField,{global.DefaultPassword},
+TC001,Valid Login,Positive,TRUE,5,click,LoginButton,,
+TC001,Valid Login,Positive,TRUE,6,assert,username_display,{global.DefaultUsername},{global.DefaultUsername}
+TC001,Valid Login,Positive,TRUE,7,click,LogoutLink,,
+TC002,Invalid Password,Negative,TRUE,1,navigate,,{global.baseURL},
+TC002,Invalid Password,Negative,TRUE,2,click,LoginLink,,
+TC002,Invalid Password,Negative,TRUE,3,type,EmailField,{global.DefaultEmail},
+TC002,Invalid Password,Negative,TRUE,4,type,PasswordField,abdan,
+TC002,Invalid Password,Negative,TRUE,5,click,LoginButton,,
+TC002,Invalid Password,Negative,TRUE,6,assert,xpath=//p[normalize-space()='Your email or password is incorrect!'],,Your email or password is incorrect!

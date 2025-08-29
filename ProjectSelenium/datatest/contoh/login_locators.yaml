@@ -1,0 +1,33 @@
+# File: locators.yaml
+project_name: ProjectSelenium
+
+locators:
+  EmailField:
+    LocatorType: NAME
+    LocatorValue: email
+    Description: Field input email login
+
+  PasswordField:
+    LocatorType: NAME
+    LocatorValue: password
+    Description: Field input password login
+
+  LoginButton:
+    LocatorType: XPATH
+    LocatorValue: "//button[text()='Login']"
+    Description: Tombol login
+
+  LoginLink:
+    LocatorType: XPATH
+    LocatorValue: '//a[@href="/login"]'
+    Description: Link Login
+
+  LogoutLink:
+    LocatorType: XPATH
+    LocatorValue: '//a[@href="/logout"]'
+    Description: Link Logout
+
+  username_display:
+    LocatorType: xpath
+    LocatorValue: "//a/b"
+    Description: Validasi login

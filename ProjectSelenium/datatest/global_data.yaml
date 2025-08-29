@@ -1,0 +1,8 @@
+# datatest/config/global_config.yaml
+
+GlobalData:
+  baseURL: "https://automationexercise.com/" # url utama web
+  DefaultPassword: "abdan123" # password akun default
+  DefaultUsername: "abdan1"
+  DefaultEmail: "LLCKP@email.com"
+  Timeout: 10 # timeout

@@ -1,0 +1,30 @@
+qa_automation_framework/
+│
+├── core/
+│   │
+│   ├── csv_reader.py               # membaca file csv
+│   ├── data_loader.py              # load dan memproses file csv/yaml
+│   ├── generic_keyword.py          # eksekutor keyword-driven test steps
+│   ├── yaml_reader.py              # utility baca data dari yaml
+│   └── utils.py         			# Fungsi umum, misal capture_screenshot, logging, dll      
+│
+├── datatest/
+│   ├── login/
+│   │   ├── testcases.xlsx/csv/yaml    # data-driven: ID, skenario, input, expected
+│   │   └── locators.xlsx/csv/yaml     # langkah uji (keyword, locator, data mapping)
+│   │
+│   ├── global_data.yaml            # data umum (misal user default, constants, dll.)
+│   ├── global_locator.yaml         # langkah uji (keyword, locator, data mapping) yang bersifat global/sering di pakai
+│   │
+│   └── ...         
+│
+├── reports/
+│   ├── html/                       
+│   └── pdf/     
+│   └── capture/                     
+│
+├── conftest.py                     # configuration
+├── launcher.py                     # launch running
+├── requirements.txt                # hal hal yang perlu untuk di install
+├── strukturproject.txt             # penjelasan tiap file  
+└── README.md        

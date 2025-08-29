@@ -1,0 +1,74 @@
+# File: test_cases.yaml
+test_cases:
+  - CaseID: TC001
+    Title: Valid Login
+    ScenarioType: Positive
+    Run: true
+    TestSteps:
+      - StepID: 1
+        Action: navigate
+        TestData: "{global.baseURL}"
+      - StepID: 2
+        Action: click
+        Locator: LoginLink
+        TestData: ""
+        Expected: ""
+      - StepID: 3
+        Action: type
+        Locator: EmailField
+        TestData: "{global.DefaultEmail}"
+        Expected: ""
+      - StepID: 4
+        Action: type
+        Locator: PasswordField
+        TestData: "{global.DefaultPassword}"
+        Expected: ""
+      - StepID: 5
+        Action: click
+        Locator: LoginButton
+        TestData: ""
+        Expected: ""
+      - StepID: 6
+        Action: assert
+        Locator: username_display
+        TestData: "{global.DefaultUsername}"
+        Expected: "{global.DefaultUsername}"
+      - StepID: 7
+        Action: click
+        Locator: LogoutLink
+        TestData: ""
+        Expected: ""
+
+  - CaseID: TC002
+    Title: Invalid Password
+    ScenarioType: Negative
+    Run: true
+    TestSteps:
+      - StepID: 1
+        Action: navigate
+        TestData: "{global.baseURL}"
+      - StepID: 2
+        Action: click
+        Locator: LoginLink
+        TestData: ""
+        Expected: ""
+      - StepID: 3
+        Action: type
+        Locator: EmailField
+        TestData: "{global.DefaultEmail}"
+        Expected: ""
+      - StepID: 4
+        Action: type
+        Locator: PasswordField
+        TestData: "abdan"
+        Expected: ""
+      - StepID: 5
+        Action: click
+        Locator: LoginButton
+        TestData: ""
+        Expected: ""
+      - StepID: 6
+        Action: assert
+        Locator: "xpath=//p[normalize-space()='Your email or password is incorrect!']"
+        TestData: ""
+        Expected: "Your email or password is incorrect!"
