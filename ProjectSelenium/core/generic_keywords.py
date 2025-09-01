@@ -4,6 +4,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from core.utils import Utils
 import os, re, pytest
 from core.yaml_reader import YAMLReader
+from selenium.webdriver.support.ui import Select
+import ast
 
 
 
@@ -17,7 +19,9 @@ class GenericKeywords:
             "id": By.ID,
             "name": By.NAME,
             "xpath": By.XPATH,
-            "css": By.CSS_SELECTOR
+            "css": By.CSS_SELECTOR,
+            "LINK_TEXT": By.LINK_TEXT,
+            "PARTIAL_LINK_TEXT": By.PARTIAL_LINK_TEXT
         }
         return mapping[locator_type.lower()], locator_value
 
@@ -56,6 +60,17 @@ class GenericKeywords:
         print(f"[ASSERT] Expect: '{expected_text}', Actual: '{actual}'")
         assert actual == expected_text, f"Expected {expected_text}, got {actual}"
         Utils.capture_screenshot(self.driver, run_dir)
+
+    def select_by_value(self, locator, value, timeout, run_dir=None):
+        locator_type, locator_value = locator
+        locator_type, locator_value = self.parse_locator(locator_type, locator_value)
+        elem = WebDriverWait(self.driver, timeout).until(
+            EC.presence_of_element_located((locator_type, locator_value))
+        )
+        select = Select(elem)
+        select.select_by_value(value)  # Bisa juga select_by_visible_text(value)
+        print(f"[ACTION] Select '{value}' in {locator}")
+        Utils.capture_screenshot(self.driver, run_dir)
     
     def resolve_value(self, value, globaldata: dict):
         """Replace placeholder {global.xxx} dengan value dari globaldata dict"""
@@ -67,8 +82,10 @@ class GenericKeywords:
         def replacer(match):
             key = match.group(1)
             return str(globaldata.get(key, f"{{global.{key}}}"))  # fallback kalau key tidak ada
-        
+            
         return re.sub(pattern, replacer, value)
+    
+
 
     # ================== YAML EXECUTOR ==================
     def execute_testcase(self, testcase, LOCATORS, run_dir=None):
@@ -81,6 +98,8 @@ class GenericKeywords:
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         globaldata_file = os.path.join(BASE_DIR, "..", "datatest", "global_data.yaml")
         globaldata = YAMLReader.read(globaldata_file)["GlobalData"]
+        globallocator_file = os.path.join(BASE_DIR, "..", "datatest", "global_locators.yaml")
+        globallocator = YAMLReader.read(globallocator_file)["GlobalLocators"]
         DefaultTimeout = globaldata.get("Timeout")        
 
         
@@ -94,36 +113,45 @@ class GenericKeywords:
             testcase_dir = os.path.join(run_dir, str(testcase["Title"]))
             os.makedirs(testcase_dir, exist_ok=True)
         
-            # Ambil nama locator dari step
-            locator = None
-
             # Ambil test data dari step
             test_data = self.resolve_value(test_data, globaldata)
-            #print(f"value testdata yang sudah di resolve: {test_data}")
-
-            # Ambil locator dari step
-            locator_name = self.resolve_value(locator_name, globaldata)
 
             # Ambil expected dari step
             expected = self.resolve_value(expected, globaldata)
+                                   
+            locator = None
+            if locator_name:
+                # Cek di LOCATORS lokal
+                local = LOCATORS["locators"].get(locator_name)
+                if local:
+                    resolved_value = self.resolve_value(local["LocatorValue"], globaldata)
+                    locator = (local["LocatorType"], resolved_value)
+                else:
+                    # Pakai global locator
+                    resolved_global = self.resolve_value(locator_name, globallocator)
+                    if isinstance(resolved_global, str):
+                        resolved_global = ast.literal_eval(resolved_global)
+                    locator = (resolved_global["LocatorType"], resolved_global["LocatorValue"])
 
-            if locator_name and LOCATORS["locators"].get(locator_name):                
-                l = LOCATORS["locators"].get(locator_name)
-                resolved_locator_value = self.resolve_value(l["LocatorValue"], globaldata)
-                locator = (l["LocatorType"], resolved_locator_value)
-
-  
-            if action == "navigate":
-                self.navigate(test_data)
-            elif action == "click" and locator:
-                self.click(locator, DefaultTimeout, testcase_dir)
-            elif action == "type" and locator:
-                self.type(locator, test_data, DefaultTimeout, testcase_dir)
-            elif action == "assert" and locator:
-                self.assert_text(locator, expected, DefaultTimeout, testcase_dir)
-            else:
-                print(f"[ERROR] Unknown action or missing locator: {action} dan locatornya {locator}")
-                pytest.fail(f"[ERROR] Unknown action or missing locator: {action} dan locatornya {locator}")
+            # --- Eksekusi action ---
+            try:
+                if action == "navigate":
+                    self.navigate(test_data)
+                elif action == "click" and locator:
+                    self.click(locator, DefaultTimeout, testcase_dir)
+                elif action == "type" and locator:
+                    self.type(locator, test_data, DefaultTimeout, testcase_dir)
+                elif action == "select" and locator:
+                    self.select_by_value(locator, test_data, DefaultTimeout, testcase_dir)
+                elif action == "assert" and locator:
+                    self.assert_text(locator, expected, DefaultTimeout, testcase_dir)
+                else:
+                    msg = f"[ERROR] Unknown action or missing locator: {action}, locator: {locator}"
+                    print(msg)
+                    pytest.fail(msg)
+            except Exception as e:
+                print(f"[EXCEPTION] Error saat menjalankan action '{action}': {e}")
+                pytest.fail(f"[EXCEPTION] Error saat menjalankan action '{action}': {e}")
 
 
     

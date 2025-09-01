@@ -1,7 +1,7 @@
 # File: locators.yaml
 project_name: ProjectSelenium
 
-locators:
+GlobalLocators:
   EmailField:
     LocatorType: NAME
     LocatorValue: email
@@ -14,10 +14,10 @@ locators:
 
   LoginLink:
     LocatorType: XPATH
-    LocatorValue: "//button[text()='Login']"
+    LocatorValue: //a[@href="/login"]
     Description: Tombol login
 
   LogoutLink:
     LocatorType: XPATH
-    LocatorValue: "//a[text()=' Logout']"
+    LocatorValue: //a[text()=' Logout']
     Description: Tombol logout di navbar

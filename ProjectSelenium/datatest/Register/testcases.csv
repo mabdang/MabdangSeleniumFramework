@@ -1,0 +1,36 @@
+CaseID,Title,ScenarioType,Run,StepID,Action,Locator,TestData,Expected
+TC001,Register User,Positive,TRUE,1,navigate,,{global.baseURL},
+TC001,Register User,Positive,TRUE,2,click,{global.LoginLink},,
+TC001,Register User,Positive,TRUE,3,type,SignUpName,{global.DefaultUsername}, 
+TC001,Register User,Positive,TRUE,4,type,SignUpEmail,"a1@email.com",
+TC001,Register User,Positive,TRUE,5,click,SignUpButton,
+TC001,Register User,Positive,TRUE,6,click,TitleRadioByValue,"Mr.","Radio button Mr is selected"
+TC001,Register User,Positive,TRUE,7,type,SignUpPassword,"abdan123",
+TC001,Register User,Positive,TRUE,8,select,SignUpDay,"20",
+TC001,Register User,Positive,TRUE,9,select,SignUpMonth,"July",
+TC001,Register User,Positive,TRUE,10,select,SignUpYear,"2000",
+TC001,Register User,Positive,TRUE,11,click,SignUpNewsLetter,
+TC001,Register User,Positive,TRUE,12,click,SignUpOffer,
+TC001,Register User,Positive,TRUE,13,type,SignUpFirstname,"aaa",
+TC001,Register User,Positive,TRUE,14,type,SignUpLastname,"bbb",
+TC001,Register User,Positive,TRUE,15,type,SignUpAddress,"Jalan Street",
+TC001,Register User,Positive,TRUE,16,select,SignUpCountry,"Israel",
+TC001,Register User,Positive,TRUE,17,type,SignUpState,"State",
+TC001,Register User,Positive,TRUE,18,type,SignUpCity,"city",
+TC001,Register User,Positive,TRUE,19,type,SignUpZipcode,"Zipcode",
+TC001,Register User,Positive,TRUE,20,type,SignUpMobileNumber,"08123456789",
+TC001,Register User,Positive,TRUE,21,click,SignUpCreateAccount,
+TC001,Register User,Positive,TRUE,22,assert,username_display,{global.DefaultUsername},{global.DefaultUsername}
+TC001,Register User,Positive,TRUE,23,click,SignUpDeleteAccount,
+
+
+
+
+
+
+
+
+
+
+
+

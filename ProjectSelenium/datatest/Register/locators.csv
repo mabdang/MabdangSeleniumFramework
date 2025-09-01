@@ -1,0 +1,24 @@
+LocatorName,LocatorType,LocatorValue,Description
+SignUpName,NAME,name,Field input name
+SignUpEmail,XPATH,//input[@data-qa='signup-email'],Field input email
+SignUpButton,XPATH,//button[text()='Signup'],Field input email
+TitleRadioByValue,XPATH,//input[@name='title' and @value='{value}'],
+SignUpPassword,NAME,password,Field input password
+SignUpDay,ID,days,select input day
+SignUpMonth,ID,months,select input months
+SignUpYear,ID,years,select input year 
+SignUpNewsLetter,ID,newsletter,select input newsletter optin
+SignUpOffer,ID,optin,select input optin
+SignUpFirstname,ID,first_name, input first_name
+SignUpLastname,ID,last_name, input last_name
+SignUpCompany,ID,company, input company
+SignUpAddress,ID,address1, input address
+SignUpCountry,ID,country, input country
+SignUpState,ID,state,
+SignUpCity,ID,city,
+SignUpZipcode,ID,zipcode,
+SignUpMobileNumber,ID,mobile_number,
+SignUpCreateAccount,ID,create-account,
+SignUpDeleteAccount,XPATH,//a[text()=' Delete Account'],
+
+
