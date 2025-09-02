@@ -2,12 +2,12 @@
 project_name: ProjectSelenium
 
 GlobalLocators:
-  EmailField:
+  DefaultEmail:
     LocatorType: NAME
     LocatorValue: email
     Description: Field input email login
 
-  PasswordField:
+  DefaultPassword:
     LocatorType: NAME
     LocatorValue: password
     Description: Field input password login
@@ -19,5 +19,15 @@ GlobalLocators:
 
   LogoutLink:
     LocatorType: XPATH
-    LocatorValue: //a[text()=' Logout']
+    LocatorValue: //a[@href="/logout"]
     Description: Tombol logout di navbar
+
+  LoginButton:
+    LocatorType: XPATH
+    LocatorValue: //button[text()='Login']
+    Description: Tombol button login di navbar
+
+  username_display:
+    LocatorType: XPATH
+    LocatorValue: //a/b
+    Description: Validasi login

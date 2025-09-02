@@ -1,19 +1,14 @@
 selenium==4.23.1          # untuk browser automation
 webdriver-manager==4.0.2  # auto download/update webdriver
-
 pytest==8.3.2             # test runner
+openpyxl==3.1.5           # baca tulis file Excelpip install pyyaml
+loguru==0.7.2             # logging lebih clean (opsional)
+PyYAML>=6.0               # baca yaml
 #pytest-html==4.1.1        # generate HTML report
 #pytest-html-reporter==0.2.9   # alternatif report HTML yang lebih modern
-
-openpyxl==3.1.5           # baca tulis file Excelpip install pyyaml
-#pandas==2.2.2             # optional, kalau butuh olah data lebih kompleks
-
-loguru==0.7.2             # logging lebih clean (opsional)
-
 #pdfkit==1.0.0             # convert HTML report jadi PDF (butuh wkhtmltopdf diinstall di OS)
 #weasyprint==62.3          # alternatif PDF generator (pure python)
-PyYAML>=6.0               # baca yaml
+#pandas==2.2.2             # optional, kalau butuh olah data lebih kompleks
 
 #pip install -r requirements.txt
 #pytest launcher.py -s --feature_name=login
-#merapikan requirement

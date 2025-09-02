@@ -6,7 +6,7 @@ import os, re, pytest
 from core.yaml_reader import YAMLReader
 from selenium.webdriver.support.ui import Select
 import ast
-
+from selenium.common.exceptions import NoSuchElementException
 
 
 class GenericKeywords:
@@ -68,22 +68,37 @@ class GenericKeywords:
             EC.presence_of_element_located((locator_type, locator_value))
         )
         select = Select(elem)
-        select.select_by_value(value)  # Bisa juga select_by_visible_text(value)
+        try:
+            # coba dulu dengan value
+            select.select_by_value(value)
+        except NoSuchElementException:
+            # fallback ke visible text
+            select.select_by_visible_text(value)
         print(f"[ACTION] Select '{value}' in {locator}")
         Utils.capture_screenshot(self.driver, run_dir)
     
-    def resolve_value(self, value, globaldata: dict):
-        """Replace placeholder {global.xxx} dengan value dari globaldata dict"""
+    def resolve_value(self, value, globaldata: dict, test_data: str = None):
+        """
+        Replace placeholder:
+        - {global.xxx} -> ambil dari globaldata dict
+        - {value} -> diganti dengan test_data (misalnya dari CSV)
+        """
         if not isinstance(value, str):
             return value
-        
-        pattern = r"\{global\.([a-zA-Z0-9_]+)\}"
-        
-        def replacer(match):
+
+        # handle {global.xxx}
+        pattern_global = r"\{global\.([a-zA-Z0-9_]+)\}"
+        def replacer_global(match):
             key = match.group(1)
             return str(globaldata.get(key, f"{{global.{key}}}"))  # fallback kalau key tidak ada
-            
-        return re.sub(pattern, replacer, value)
+
+        value = re.sub(pattern_global, replacer_global, value)
+
+        # handle {value}
+        if "{value}" in value and test_data is not None:
+            value = value.replace("{value}", str(test_data))
+        return value
+        
     
 
 
@@ -101,7 +116,6 @@ class GenericKeywords:
         globallocator_file = os.path.join(BASE_DIR, "..", "datatest", "global_locators.yaml")
         globallocator = YAMLReader.read(globallocator_file)["GlobalLocators"]
         DefaultTimeout = globaldata.get("Timeout")        
-
         
         for step in testcase["TestSteps"]:
             action = step["Action"].lower()
@@ -114,22 +128,23 @@ class GenericKeywords:
             os.makedirs(testcase_dir, exist_ok=True)
         
             # Ambil test data dari step
-            test_data = self.resolve_value(test_data, globaldata)
-
+            test_data = self.resolve_value(test_data, globaldata, test_data)
+            
+            
             # Ambil expected dari step
-            expected = self.resolve_value(expected, globaldata)
+            expected = self.resolve_value(expected, globaldata, test_data)
                                    
             locator = None
             if locator_name:
                 # Cek di LOCATORS lokal
                 local = LOCATORS["locators"].get(locator_name)
                 if local:
-                    resolved_value = self.resolve_value(local["LocatorValue"], globaldata)
+                    resolved_value = self.resolve_value(local["LocatorValue"], globaldata, test_data)
                     locator = (local["LocatorType"], resolved_value)
                 else:
                     # Pakai global locator
-                    resolved_global = self.resolve_value(locator_name, globallocator)
-                    if isinstance(resolved_global, str):
+                    resolved_global = self.resolve_value(locator_name, globallocator, test_data)
+                    if isinstance(resolved_global, str):                        
                         resolved_global = ast.literal_eval(resolved_global)
                     locator = (resolved_global["LocatorType"], resolved_global["LocatorValue"])
 

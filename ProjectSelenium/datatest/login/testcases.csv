@@ -1,16 +1,16 @@
 CaseID,Title,ScenarioType,Run,StepID,Action,Locator,TestData,Expected
 TC001,Valid Login,Positive,TRUE,1,navigate,,{global.baseURL},
-TC001,Valid Login,Positive,TRUE,2,click,LoginLink,{global.LoginLink},
-TC001,Valid Login,Positive,TRUE,3,type,EmailField,{global.DefaultEmail},
-TC001,Valid Login,Positive,TRUE,4,type,PasswordField,{global.DefaultPassword},
-TC001,Valid Login,Positive,TRUE,5,click,LoginButton,{global.LoginLink},
-TC001,Valid Login,Positive,TRUE,6,assert,username_display,{global.DefaultUsername},{global.DefaultUsername}
-TC001,Valid Login,Positive,TRUE,7,click,LogoutLink,{global.LogoutLink},
-TC002,Invalid Email Password,Negative,TRUE,1,navigate,,{global.baseURL},
-TC002,Invalid Email Password,Negative,TRUE,2,click,LoginLink,{global.LoginLink},
-TC002,Invalid Email Password,Negative,TRUE,3,type,EmailField,a@email.com,
-TC002,Invalid Email Password,Negative,TRUE,4,type,PasswordField,abdan,
-TC002,Invalid Email Password,Negative,TRUE,5,click,LoginButton,{global.LoginLink},
-TC002,Invalid Email Password,Negative,TRUE,6,assert,InvalidLoginMessage,,Your email or password is incorrect!
+TC001,Valid Login,Positive,TRUE,2,click,{global.LoginLink},,
+TC001,Valid Login,Positive,TRUE,3,type,{global.DefaultEmail},{global.DefaultEmail},
+TC001,Valid Login,Positive,TRUE,4,type,{global.DefaultPassword},{global.DefaultPassword},
+TC001,Valid Login,Positive,TRUE,5,click,{global.LoginButton},,
+TC001,Valid Login,Positive,TRUE,6,assert,{global.username_display},{global.DefaultUsername},{global.DefaultUsername}
+TC001,Valid Login,Positive,TRUE,7,click,{global.LogoutLink},,
+TC002,Invalid Email Password,Negative,FALSE,1,navigate,,{global.baseURL},
+TC002,Invalid Email Password,Negative,FALSE,2,click,{global.LoginLink},,
+TC002,Invalid Email Password,Negative,FALSE,3,type,{global.DefaultEmail},a@email.com,
+TC002,Invalid Email Password,Negative,FALSE,4,type,{global.DefaultPassword},abdan,
+TC002,Invalid Email Password,Negative,FALSE,5,click,{global.LoginButton},,
+TC002,Invalid Email Password,Negative,FALSE,6,assert,InvalidLoginMessage,,Your email or password is incorrect!
 
 

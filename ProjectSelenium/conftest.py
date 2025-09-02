@@ -41,7 +41,6 @@ def run_dir():
     """
     Buat folder baru untuk setiap run dengan struktur:
     ProjectSelenium/reports/capture/run_YYYYMMDD_HHMMSS/
-       ├─ Log/
        └─ [NamaTestCase]/
     """
     # Cari project root = folder ProjectSelenium

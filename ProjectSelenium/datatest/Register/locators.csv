@@ -18,7 +18,8 @@ SignUpState,ID,state,
 SignUpCity,ID,city,
 SignUpZipcode,ID,zipcode,
 SignUpMobileNumber,ID,mobile_number,
-SignUpCreateAccount,ID,create-account,
+SignUpCreateAccount,XPATH,//button[@data-qa='create-account'],
+SignUpValidateCreateAccount,XPATH,//h2[@data-qa="account-created"],
 SignUpDeleteAccount,XPATH,//a[text()=' Delete Account'],
-
+SignUpValidateDeletedAccount,XPATH,//h2[@data-qa='account-deleted'],
 

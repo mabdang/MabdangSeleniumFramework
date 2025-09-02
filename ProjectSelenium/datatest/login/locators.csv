@@ -1,8 +1,3 @@
 LocatorName,LocatorType,LocatorValue,Description
-EmailField,NAME,email,Field input email login
-PasswordField,NAME,password,Field input password login
-LoginButton,XPATH,//button[text()='Login'],Tombol login
-LoginLink,XPATH,//a[@href="/login"],Link Login
-LogoutLink,XPATH,//a[@href="/logout"],Link Logout
 username_display,xpath,//a/b,Validasi login
 InvalidLoginMessage,XPATH,"//p[normalize-space(text())='Your email or password is incorrect!']","Pesan error login invalid"
