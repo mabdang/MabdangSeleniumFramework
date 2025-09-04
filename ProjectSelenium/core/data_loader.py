@@ -31,10 +31,34 @@ class DataLoader:
                     wb = openpyxl.load_workbook(path)
                     sheet = wb.active
                     keys = [cell.value for cell in sheet[1]]
-                    testcases = []
+
+                    testcases = {}
                     for row in sheet.iter_rows(min_row=2, values_only=True):
-                        testcases.append(dict(zip(keys, row)))
-                    return {"test_cases": testcases}
+                        row_dict = dict(zip(keys, row))
+                        case_id = row_dict["CaseID"]
+
+                        step = {
+                            "StepID": row_dict["StepID"],
+                            "Action": row_dict["Action"],
+                            "Locator": row_dict.get("Locator"),
+                            "TestData": row_dict.get("TestData"),
+                            "Expected": row_dict.get("Expected"),
+                        }
+
+                        if case_id not in testcases:
+                            testcases[case_id] = {
+                                "CaseID": case_id,
+                                "Title": row_dict["Title"],
+                                "ScenarioType": row_dict["ScenarioType"],
+                                "Run": str(row_dict["Run"]).lower() in ("true", "yes", "1"),
+                                "TestSteps": [],
+                            }
+
+                        testcases[case_id]["TestSteps"].append(step)
+
+                    # bungkus biar konsisten
+                    return {"test_cases": list(testcases.values())}
+     
 
         raise FileNotFoundError(f"Tidak ditemukan testcases di {folder}")
 
@@ -69,7 +93,7 @@ class DataLoader:
                     locators = {}
                     for row in sheet.iter_rows(min_row=2, values_only=True):
                         row_dict = dict(zip(keys, row))
-                        name = row_dict["Name"]
+                        name = row_dict["LocatorName"]
                         locators[name] = {
                             "LocatorType": row_dict.get("LocatorType"),
                             "LocatorValue": row_dict.get("LocatorValue"),
