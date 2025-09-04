@@ -2,7 +2,7 @@ CaseID,Title,ScenarioType,Run,StepID,Action,Locator,TestData,Expected
 TC001,Register User,Positive,TRUE,1,navigate,,{global.baseURL},
 TC001,Register User,Positive,TRUE,2,click,{global.LoginLink},,
 TC001,Register User,Positive,TRUE,3,type,SignUpName,{global.DefaultUsername}, 
-TC001,Register User,Positive,TRUE,4,type,SignUpEmail,"a1@email.com",
+TC001,Register User,Positive,TRUE,4,type,SignUpEmail,"a2@email.com",
 TC001,Register User,Positive,TRUE,5,click,SignUpButton,
 TC001,Register User,Positive,TRUE,6,click,TitleRadioByValue,"Mr","Radio button Mr is selected"
 TC001,Register User,Positive,TRUE,7,type,SignUpPassword,"aa123",

@@ -1,74 +1,77 @@
-# File: test_cases.yaml
 test_cases:
   - CaseID: TC001
-    Title: Valid Login
-    ScenarioType: Positive
+    Title: "Valid Login"
+    ScenarioType: "Positive"
     Run: true
     TestSteps:
       - StepID: 1
         Action: navigate
+        Locator: null
         TestData: "{global.baseURL}"
+        Expected: null
       - StepID: 2
         Action: click
-        Locator: LoginLink
-        TestData: ""
-        Expected: ""
+        Locator: "{global.LoginLink}"
+        TestData: null
+        Expected: null
       - StepID: 3
         Action: type
-        Locator: EmailField
+        Locator: "{global.DefaultEmail}"
         TestData: "{global.DefaultEmail}"
-        Expected: ""
+        Expected: null
       - StepID: 4
         Action: type
-        Locator: PasswordField
+        Locator: "{global.DefaultPassword}"
         TestData: "{global.DefaultPassword}"
-        Expected: ""
+        Expected: null
       - StepID: 5
         Action: click
-        Locator: LoginButton
-        TestData: ""
-        Expected: ""
+        Locator: "{global.LoginButton}"
+        TestData: null
+        Expected: null
       - StepID: 6
         Action: assert
-        Locator: username_display
+        Locator: "{global.username_display}"
         TestData: "{global.DefaultUsername}"
         Expected: "{global.DefaultUsername}"
       - StepID: 7
         Action: click
-        Locator: LogoutLink
-        TestData: ""
-        Expected: ""
+        Locator: "{global.LogoutLink}"
+        TestData: null
+        Expected: null
 
   - CaseID: TC002
-    Title: Invalid Password
-    ScenarioType: Negative
+    Title: "Invalid Email Password"
+    ScenarioType: "Negative"
     Run: true
     TestSteps:
       - StepID: 1
         Action: navigate
+        Locator: null
         TestData: "{global.baseURL}"
+        Expected: null
       - StepID: 2
         Action: click
-        Locator: LoginLink
-        TestData: ""
-        Expected: ""
+        Locator: "{global.LoginLink}"
+        TestData: null
+        Expected: null
       - StepID: 3
         Action: type
-        Locator: EmailField
-        TestData: "{global.DefaultEmail}"
-        Expected: ""
+        Locator: "{global.DefaultEmail}"
+        TestData: "a@email.com"
+        Expected: null
       - StepID: 4
         Action: type
-        Locator: PasswordField
+        Locator: "{global.DefaultPassword}"
         TestData: "abdan"
-        Expected: ""
+        Expected: null
       - StepID: 5
         Action: click
-        Locator: LoginButton
-        TestData: ""
-        Expected: ""
+        Locator: "{global.LoginButton}"
+        TestData: null
+        Expected: null
       - StepID: 6
         Action: assert
-        Locator: "xpath=//p[normalize-space()='Your email or password is incorrect!']"
-        TestData: ""
+        Locator: "InvalidLoginMessage"
+        TestData: null
         Expected: "Your email or password is incorrect!"

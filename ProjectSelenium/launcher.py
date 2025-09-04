@@ -40,9 +40,22 @@ def test_feature(driver, run_dir, feature_name):
 
     # --- Jalankan testcases ---
     executor = GenericKeywords(driver)
+    results = []
     for testcase in testcases["test_cases"]:
         if not testcase.get("Run", True):
             print(f"[SKIPPED] {testcase['CaseID']} - {testcase['Title']}")
+            results.append((testcase['CaseID'], "SKIPPED"))
+            continue
+
+        try:
+            executor.execute_testcase(testcase, LOCATORS, run_dir)
+            results.append((testcase['CaseID'], "PASS"))
+        except Exception as e:
+            print(f"[ERROR] {testcase['CaseID']} - {testcase['Title']} gagal dijalankan: {e}")
+            results.append((testcase['CaseID'], "FAIL"))
             continue
 
         executor.execute_testcase(testcase, LOCATORS, run_dir)
+
+
+

@@ -2,10 +2,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from core.utils import Utils
-import os, re, pytest
+import os, re, pytest, ast
 from core.yaml_reader import YAMLReader
 from selenium.webdriver.support.ui import Select
-import ast
 from selenium.common.exceptions import NoSuchElementException
 
 
@@ -55,7 +54,7 @@ class GenericKeywords:
         locator_type, locator_value = self.parse_locator(locator_type, locator_value)
         elem = WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located((locator_type, locator_value))
-        )
+        )       
         actual = elem.text
         print(f"[ASSERT] Expect: '{expected_text}', Actual: '{actual}'")
         assert actual == expected_text, f"Expected {expected_text}, got {actual}"
@@ -99,9 +98,6 @@ class GenericKeywords:
             value = value.replace("{value}", str(test_data))
         return value
         
-    
-
-
     # ================== YAML EXECUTOR ==================
     def execute_testcase(self, testcase, LOCATORS, run_dir=None):
         """Eksekusi semua step dari 1 test case YAML"""
@@ -130,14 +126,20 @@ class GenericKeywords:
             # Ambil test data dari step
             test_data = self.resolve_value(test_data, globaldata, test_data)
             
-            
+            # Ambil locator_name dari step
+            locator_name = self.resolve_value(locator_name, globallocator, test_data)
+
             # Ambil expected dari step
             expected = self.resolve_value(expected, globaldata, test_data)
-                                   
+ 
+
             locator = None
             if locator_name:
                 # Cek di LOCATORS lokal
-                local = LOCATORS["locators"].get(locator_name)
+               
+                local_locator_dict = LOCATORS.get("locators", LOCATORS)   # aman walau 'locators' tidak ada            
+                local = local_locator_dict.get(locator_name)
+
                 if local:
                     resolved_value = self.resolve_value(local["LocatorValue"], globaldata, test_data)
                     locator = (local["LocatorType"], resolved_value)

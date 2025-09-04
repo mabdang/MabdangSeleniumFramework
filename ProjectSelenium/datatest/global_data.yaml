@@ -2,7 +2,7 @@
 
 GlobalData:
   baseURL: "https://automationexercise.com/" # url utama web
-  DefaultPassword: "abdan123" # password akun default
+  DefaultPassword: "aa123" # password akun default
   DefaultUsername: "abdan1"
-  DefaultEmail: "LLCKP@email.com"
+  DefaultEmail: "a1@email.com"
   Timeout: 10 # timeout
