@@ -19,7 +19,9 @@ class CSVReader:
                     "Action": row["Action"],
                     "Locator": row.get("Locator",""),
                     "TestData": row.get("TestData",""),
-                    "Expected": row.get("Expected","")
+                    "Expected": row.get("Expected",""),
+                    "Title": row.get("StepTitle",""),        # 🆕 field tambahan untuk judul step
+                    "Description": row.get("Description","") # 🆕 field tambahan untuk deskripsi step
                 })
         return {"test_cases": list(cases.values())}
 
@@ -39,7 +41,7 @@ class CSVReader:
                 locators[locator_name] = {
                     "LocatorType": row.get("LocatorType", "").strip(),
                     "LocatorValue": row.get("LocatorValue", "").strip(),
-                    "Description": row.get("Description", "").strip(),
+                    "Description": row.get("Description", "").strip(), # 🆕 pastikan ada deskripsi
                 }
 
         result = {
@@ -49,5 +51,3 @@ class CSVReader:
 
         #print(f"[DEBUG] read_locators OK: {len(locators)} locator dimuat dari {filepath}")
         return result
-
-

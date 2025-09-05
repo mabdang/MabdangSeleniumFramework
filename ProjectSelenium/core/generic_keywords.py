@@ -1,16 +1,18 @@
+# core/generic_keywords.py
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from core.utils import Utils
-import os, re, pytest, ast
-from core.yaml_reader import YAMLReader
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
-
+from core.utils import Utils
+from core.result_tracker import ResultTracker  # 🆕 UPDATE
+from core.yaml_reader import YAMLReader
+import os, re, pytest, ast
 
 class GenericKeywords:
     def __init__(self, driver):
         self.driver = driver
+        self.tracker = ResultTracker()  # 🆕 UPDATE: init tracker
 
     @staticmethod
     def parse_locator(locator_type, locator_value):
@@ -19,156 +21,163 @@ class GenericKeywords:
             "name": By.NAME,
             "xpath": By.XPATH,
             "css": By.CSS_SELECTOR,
-            "LINK_TEXT": By.LINK_TEXT,
-            "PARTIAL_LINK_TEXT": By.PARTIAL_LINK_TEXT
+            "link_text": By.LINK_TEXT,
+            "partial_link_text": By.PARTIAL_LINK_TEXT
         }
         return mapping[locator_type.lower()], locator_value
 
     # ================== ACTIONS ==================
     def navigate(self, url):
-        print(f"[ACTION] Navigate to {url}")
+        print(f"[ACTION] Navigate to {url}")  # 🆕 LOG
         self.driver.get(url)
 
-    def click(self, locator, timeout, run_dir=None):
-        locator_type, locator_value = locator
-        locator_type, locator_value = self.parse_locator(locator_type, locator_value)
-        print(f"[ACTION] Click on {locator}")
+    def click(self, locator, timeout, run_dir=None, step_title=None, step_desc=None):
+        print(f"[ACTION] Click on {locator}")  # 🆕 LOG
+        locator_type, locator_value = self.parse_locator(*locator)
         WebDriverWait(self.driver, timeout).until(
             EC.element_to_be_clickable((locator_type, locator_value))
         ).click()
-        Utils.capture_screenshot(self.driver, run_dir)
+        return Utils.capture_screenshot(self.driver, run_dir, step_title, step_desc)  # 🆕 UPDATE
 
-    def type(self, locator, text, timeout, run_dir=None):
-        locator_type, locator_value = locator
-        locator_type, locator_value = self.parse_locator(locator_type, locator_value)
-        print(f"[ACTION] Type '{text}' into {locator}")
+    def type(self, locator, text, timeout, run_dir=None, step_title=None, step_desc=None):
+        print(f"[ACTION] Type '{text}' into {locator}")  # 🆕 LOG
+        locator_type, locator_value = self.parse_locator(*locator)
         elem = WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located((locator_type, locator_value))
         )
         elem.clear()
         elem.send_keys(text)
-        Utils.capture_screenshot(self.driver, run_dir)
+        return Utils.capture_screenshot(self.driver, run_dir, step_title, step_desc)  # 🆕 UPDATE
 
-    def assert_text(self, locator, expected_text, timeout, run_dir=None):
-        locator_type, locator_value = locator
-        locator_type, locator_value = self.parse_locator(locator_type, locator_value)
+    def assert_text(self, locator, expected_text, timeout, run_dir=None, step_title=None, step_desc=None):
+        print(f"[ACTION] Assert text '{expected_text}' on {locator}")  # 🆕 LOG
+        locator_type, locator_value = self.parse_locator(*locator)
         elem = WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located((locator_type, locator_value))
-        )       
+        )
         actual = elem.text
-        print(f"[ASSERT] Expect: '{expected_text}', Actual: '{actual}'")
         assert actual == expected_text, f"Expected {expected_text}, got {actual}"
-        Utils.capture_screenshot(self.driver, run_dir)
+        return Utils.capture_screenshot(self.driver, run_dir, step_title, step_desc)  # 🆕 UPDATE
 
-    def select_by_value(self, locator, value, timeout, run_dir=None):
-        locator_type, locator_value = locator
-        locator_type, locator_value = self.parse_locator(locator_type, locator_value)
+    def select_by_value(self, locator, value, timeout, run_dir=None, step_title=None, step_desc=None):
+        print(f"[ACTION] Select '{value}' in {locator}")  # 🆕 LOG
+        locator_type, locator_value = self.parse_locator(*locator)
         elem = WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located((locator_type, locator_value))
         )
         select = Select(elem)
         try:
-            # coba dulu dengan value
             select.select_by_value(value)
         except NoSuchElementException:
-            # fallback ke visible text
             select.select_by_visible_text(value)
-        print(f"[ACTION] Select '{value}' in {locator}")
-        Utils.capture_screenshot(self.driver, run_dir)
-    
+        return Utils.capture_screenshot(self.driver, run_dir, step_title, step_desc)  # 🆕 UPDATE
+
+    # ================== VALUE RESOLVER ==================
     def resolve_value(self, value, globaldata: dict, test_data: str = None):
-        """
-        Replace placeholder:
-        - {global.xxx} -> ambil dari globaldata dict
-        - {value} -> diganti dengan test_data (misalnya dari CSV)
-        """
         if not isinstance(value, str):
             return value
-
-        # handle {global.xxx}
-        pattern_global = r"\{global\.([a-zA-Z0-9_]+)\}"
-        def replacer_global(match):
-            key = match.group(1)
-            return str(globaldata.get(key, f"{{global.{key}}}"))  # fallback kalau key tidak ada
-
-        value = re.sub(pattern_global, replacer_global, value)
-
-        # handle {value}
+        # Replace {global.xxx}
+        value = re.sub(
+            r"\{global\.([a-zA-Z0-9_]+)\}",
+            lambda m: str(globaldata.get(m.group(1), f"{{global.{m.group(1)}}}")),
+            value
+        )
+        # Replace {value} placeholder
         if "{value}" in value and test_data is not None:
             value = value.replace("{value}", str(test_data))
         return value
-        
+
     # ================== YAML EXECUTOR ==================
     def execute_testcase(self, testcase, LOCATORS, run_dir=None):
-        """Eksekusi semua step dari 1 test case YAML"""
         case_id = testcase.get("CaseID")
         title = testcase.get("Title", "")
         scenario_type = testcase.get("ScenarioType", "")
-        print(f"\n=== Running TestCase: {case_id} - {title} ({scenario_type}) ===")
-        # jalankan Initiator dulu
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        globaldata_file = os.path.join(BASE_DIR, "..", "datatest", "global_data.yaml")
-        globaldata = YAMLReader.read(globaldata_file)["GlobalData"]
-        globallocator_file = os.path.join(BASE_DIR, "..", "datatest", "global_locators.yaml")
-        globallocator = YAMLReader.read(globallocator_file)["GlobalLocators"]
-        DefaultTimeout = globaldata.get("Timeout")        
-        
-        for step in testcase["TestSteps"]:
-            action = step["Action"].lower()
-            locator_name = step.get("Locator")
-            test_data = step.get("TestData")
-            expected = step.get("Expected")
-           
-            #membuat folder
-            testcase_dir = os.path.join(run_dir, str(testcase["Title"]))
-            os.makedirs(testcase_dir, exist_ok=True)
-        
-            # Ambil test data dari step
-            test_data = self.resolve_value(test_data, globaldata, test_data)
-            
-            # Ambil locator_name dari step
-            locator_name = self.resolve_value(locator_name, globallocator, test_data)
 
-            # Ambil expected dari step
-            expected = self.resolve_value(expected, globaldata, test_data)
- 
+        # 🆕 UPDATE: ambil globaldata & locator dari YAML, tanpa JSON
+        globaldata = YAMLReader.read(os.path.join(BASE_DIR, "..", "datatest", "global_data.yaml"))["GlobalData"]
+        globallocator = YAMLReader.read(os.path.join(BASE_DIR, "..", "datatest", "global_locators.yaml"))["GlobalLocators"]
+        DefaultTimeout = globaldata.get("Timeout")
+
+        # 🆕 UPDATE: set meta tracker langsung
+        self.tracker.set_meta(
+            project_name=globaldata.get("ProjectName"),
+            website=globaldata.get("baseURL", ""),
+            author=globaldata.get("Author"),
+            tools=globaldata.get("Tools")
+        )
+
+        # 🆕 UPDATE: siapkan directory capture per testcase
+        testcase_dir = os.path.join(run_dir or "reports/capture", str(testcase["Title"]))
+        os.makedirs(testcase_dir, exist_ok=True)
+
+        # 🆕 UPDATE: mulai testcase di tracker
+        self.tracker.start_test_case(case_id, title, scenario_type)
+
+        for step in testcase.get("TestSteps", []):
+            action = step["Action"].lower()
+            locator_name = self.resolve_value(step.get("Locator"), globallocator)
+            test_data = self.resolve_value(step.get("TestData"), globaldata, step.get("TestData"))
+            expected = self.resolve_value(step.get("Expected"), globaldata, test_data)
+            step_title = step.get("Title", f"Step - {action}")
+            step_desc = step.get("Description", "")
+            step_id = step.get("StepID", "")
 
             locator = None
             if locator_name:
-                # Cek di LOCATORS lokal
-               
-                local_locator_dict = LOCATORS.get("locators", LOCATORS)   # aman walau 'locators' tidak ada            
-                local = local_locator_dict.get(locator_name)
-
+                local_dict = LOCATORS.get("locators", LOCATORS)
+                local = local_dict.get(locator_name)
                 if local:
                     resolved_value = self.resolve_value(local["LocatorValue"], globaldata, test_data)
                     locator = (local["LocatorType"], resolved_value)
                 else:
-                    # Pakai global locator
                     resolved_global = self.resolve_value(locator_name, globallocator, test_data)
-                    if isinstance(resolved_global, str):                        
+                    if isinstance(resolved_global, str):
                         resolved_global = ast.literal_eval(resolved_global)
                     locator = (resolved_global["LocatorType"], resolved_global["LocatorValue"])
 
-            # --- Eksekusi action ---
+            # --- execute action + capture + log status ---
             try:
+                shot = None
                 if action == "navigate":
                     self.navigate(test_data)
+                    shot = Utils.capture_screenshot(self.driver, testcase_dir, step_title, step_desc)
                 elif action == "click" and locator:
-                    self.click(locator, DefaultTimeout, testcase_dir)
+                    shot = self.click(locator, DefaultTimeout, testcase_dir, step_title, step_desc)
                 elif action == "type" and locator:
-                    self.type(locator, test_data, DefaultTimeout, testcase_dir)
+                    shot = self.type(locator, test_data, DefaultTimeout, testcase_dir, step_title, step_desc)
                 elif action == "select" and locator:
-                    self.select_by_value(locator, test_data, DefaultTimeout, testcase_dir)
+                    shot = self.select_by_value(locator, test_data, DefaultTimeout, testcase_dir, step_title, step_desc)
                 elif action == "assert" and locator:
-                    self.assert_text(locator, expected, DefaultTimeout, testcase_dir)
+                    shot = self.assert_text(locator, expected, DefaultTimeout, testcase_dir, step_title, step_desc)
                 else:
-                    msg = f"[ERROR] Unknown action or missing locator: {action}, locator: {locator}"
-                    print(msg)
-                    pytest.fail(msg)
+                    pytest.fail(f"[ERROR] Unknown action or missing locator: {action}")
+
+                # 🆕 UPDATE: log capture ke tracker
+                self.tracker.log_step(
+                    case_id=case_id,
+                    step_id=step_id,
+                    step_title=step_title,
+                    step_desc=step_desc,
+                    image_path=(shot or {}).get("file", ""),
+                    status="passed"
+                )
             except Exception as e:
-                print(f"[EXCEPTION] Error saat menjalankan action '{action}': {e}")
-                pytest.fail(f"[EXCEPTION] Error saat menjalankan action '{action}': {e}")
+                try:
+                    fail_shot = Utils.capture_screenshot(self.driver, testcase_dir, f"{step_title} (FAILED)", step_desc)
+                    img_path = fail_shot.get("file", "")
+                except Exception:
+                    img_path = ""
+                self.tracker.log_step(
+                    case_id=case_id,
+                    step_id=step_id,
+                    step_title=step_title,
+                    step_desc=step_desc,
+                    image_path=img_path,
+                    status="failed",
+                    error=str(e)
+                )
+                pytest.fail(f"[EXCEPTION] {e}")
 
-
-    
+        # 🆕 UPDATE: finalize testcase
+        self.tracker.end_test_case(case_id)

@@ -6,3 +6,6 @@ GlobalData:
   DefaultUsername: "abdan1"
   DefaultEmail: "a1@email.com"
   Timeout: 10 # timeout
+  ProjectName: "ProjectSelenium"
+  Author: "mabdang"
+  Tools: "Selenium"

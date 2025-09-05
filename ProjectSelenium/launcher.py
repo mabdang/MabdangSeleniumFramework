@@ -53,9 +53,8 @@ def test_feature(driver, run_dir, feature_name):
         except Exception as e:
             print(f"[ERROR] {testcase['CaseID']} - {testcase['Title']} gagal dijalankan: {e}")
             results.append((testcase['CaseID'], "FAIL"))
-            continue
+        continue
 
-        executor.execute_testcase(testcase, LOCATORS, run_dir)
-
+    
 
 

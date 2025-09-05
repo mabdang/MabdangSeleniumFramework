@@ -43,6 +43,8 @@ class DataLoader:
                             "Locator": row_dict.get("Locator"),
                             "TestData": row_dict.get("TestData"),
                             "Expected": row_dict.get("Expected"),
+                            "Title": row_dict.get("StepTitle"),       # 🆕 support judul step
+                            "Description": row_dict.get("Description") # 🆕 support deskripsi step
                         }
 
                         if case_id not in testcases:
@@ -58,7 +60,6 @@ class DataLoader:
 
                     # bungkus biar konsisten
                     return {"test_cases": list(testcases.values())}
-     
 
         raise FileNotFoundError(f"Tidak ditemukan testcases di {folder}")
 
@@ -97,7 +98,7 @@ class DataLoader:
                         locators[name] = {
                             "LocatorType": row_dict.get("LocatorType"),
                             "LocatorValue": row_dict.get("LocatorValue"),
-                            "Description": row_dict.get("Description", ""),
+                            "Description": row_dict.get("Description", ""),  # 🆕 konsisten ada deskripsi locator
                         }
                     return locators
 
