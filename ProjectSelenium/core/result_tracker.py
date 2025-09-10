@@ -29,20 +29,14 @@ class ResultTracker:
         self.totals = defaultdict(int)  # passed, failed, warning, done, total
 
     # -------------------- Meta & Header --------------------
-    def set_meta(self, project_name: str = None, website: str = None, author: str = None, tools: str = None):
+    #def set_meta(self, project_name: str = None, website: str = None, author: str = None, tools: str = None):
         """
         🆕 UPDATE: tambahkan tools dan semua field bisa None
         """
-        if project_name:
-            self.meta["project_name"] = project_name
-        if website:
-            self.meta["website"] = website
-        if author:
-            self.meta["author"] = author
-        if tools:
-            self.meta["tools"] = tools
-
-        # 🆕 LOG
+    def set_meta(self, **kwargs):
+        for k, v in kwargs.items():
+            if v is not None:
+                self.meta[k] = v
         print(f"[TRACKER] Meta set: {self.meta}")
 
     # -------------------- Case Lifecycle --------------------
@@ -117,3 +111,23 @@ class ResultTracker:
         """
         self._reset()
         print("[TRACKER] Tracker reset.")
+
+# -------------------- Merge Snapshots --------------------
+    @staticmethod
+    def merge_snapshots(snapshots):
+        merged = {
+            "meta": {"project_name": "", "website": "", "author": "", "tools": ""},
+            "cases": [],
+            "totals": defaultdict(int)
+        }
+        for snap in snapshots:
+            merged["cases"].extend(snap.get("cases", []))
+            for k, v in snap.get("totals", {}).items():
+                merged["totals"][k] += v
+            for k, v in snap.get("meta", {}).items():
+                if v and not merged["meta"].get(k):
+                    merged["meta"][k] = v
+
+        merged["totals"] = dict(merged["totals"])
+        print(f"[TRACKER] Merged {len(snapshots)} snapshots → {len(merged['cases'])} cases total")
+        return merged

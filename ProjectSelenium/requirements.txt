@@ -6,8 +6,7 @@ loguru==0.7.2             # logging lebih clean (opsional)
 PyYAML>=6.0               # baca yaml
 reportlab==4.2.2         # generate PDF (teks + tabel + gambar)
 fpdf2==2.7.9             # alternatif ringan buat PDF (opsional)
-#pip install reportlab
-#pip install pillow
+pytest-xdist==3.6.1     # jalan multi-core paralel
 #pip install -r requirements.txt
 #pytest launcher.py -s --feature_name=login
 

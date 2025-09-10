@@ -3,10 +3,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 from core.utils import Utils
 from core.result_tracker import ResultTracker  # 🆕 UPDATE
 from core.yaml_reader import YAMLReader
+
 import os, re, pytest, ast
 
 class GenericKeywords:
@@ -72,6 +74,46 @@ class GenericKeywords:
             select.select_by_visible_text(value)
         return Utils.capture_screenshot(self.driver, run_dir, step_title, step_desc)  # 🆕 UPDATE
 
+    def hover(self, locator, timeout, run_dir=None, step_title=None, step_desc=None):
+        print(f"[ACTION] Hover on {locator}")
+        locator_type, locator_value = self.parse_locator(*locator)
+        elem = WebDriverWait(self.driver, timeout).until(
+            EC.visibility_of_element_located((locator_type, locator_value))
+        )
+        ActionChains(self.driver).move_to_element(elem).perform()
+        return Utils.capture_screenshot(self.driver, run_dir, step_title, step_desc)
+
+    def js_click(self, locator, timeout, run_dir=None, step_title=None, step_desc=None):
+        print(f"[ACTION] JS Click on {locator}")
+        locator_type, locator_value = self.parse_locator(*locator)
+        elem = WebDriverWait(self.driver, timeout).until(
+            EC.element_to_be_clickable((locator_type, locator_value))
+        )
+        self.driver.execute_script("arguments[0].click();", elem)
+        return Utils.capture_screenshot(self.driver, run_dir, step_title, step_desc)
+
+    def drag_drop(self, source_locator, target_locator, timeout, run_dir=None, step_title=None, step_desc=None):
+        print(f"[ACTION] Drag {source_locator} to {target_locator}")
+        src_type, src_value = self.parse_locator(*source_locator)
+        tgt_type, tgt_value = self.parse_locator(*target_locator)
+        source = WebDriverWait(self.driver, timeout).until(
+            EC.presence_of_element_located((src_type, src_value))
+        )
+        target = WebDriverWait(self.driver, timeout).until(
+            EC.presence_of_element_located((tgt_type, tgt_value))
+        )
+        ActionChains(self.driver).drag_and_drop(source, target).perform()
+        return Utils.capture_screenshot(self.driver, run_dir, step_title, step_desc)
+
+    def upload_file(self, locator, file_path, timeout, run_dir=None, step_title=None, step_desc=None):
+        print(f"[ACTION] Upload file {file_path} into {locator}")
+        locator_type, locator_value = self.parse_locator(*locator)
+        elem = WebDriverWait(self.driver, timeout).until(
+            EC.presence_of_element_located((locator_type, locator_value))
+        )
+        elem.send_keys(file_path)
+        return Utils.capture_screenshot(self.driver, run_dir, step_title, step_desc)
+
     # ================== VALUE RESOLVER ==================
     def resolve_value(self, value, globaldata: dict, test_data: str = None):
         if not isinstance(value, str):
@@ -113,7 +155,7 @@ class GenericKeywords:
 
         # 🆕 UPDATE: mulai testcase di tracker
         self.tracker.start_test_case(case_id, title, scenario_type)
-
+        step_id = 0
         for step in testcase.get("TestSteps", []):
             action = step["Action"].lower()
             locator_name = self.resolve_value(step.get("Locator"), globallocator)
@@ -121,7 +163,7 @@ class GenericKeywords:
             expected = self.resolve_value(step.get("Expected"), globaldata, test_data)
             step_title = step.get("Title", f"Step - {action}")
             step_desc = step.get("Description", "")
-            step_id = step.get("StepID", "")
+            step_id = step_id + 1
 
             locator = None
             if locator_name:
@@ -150,6 +192,23 @@ class GenericKeywords:
                     shot = self.select_by_value(locator, test_data, DefaultTimeout, testcase_dir, step_title, step_desc)
                 elif action == "assert" and locator:
                     shot = self.assert_text(locator, expected, DefaultTimeout, testcase_dir, step_title, step_desc)
+                elif action == "hover" and locator:
+                    shot = self.hover(locator, DefaultTimeout, testcase_dir, step_title, step_desc)
+                elif action == "js_click" and locator:
+                    shot = self.js_click(locator, DefaultTimeout, testcase_dir, step_title, step_desc)
+                elif action == "drag_drop":
+                    source = locator
+                    #target_name = step.get("Target")
+                    target_name = test_data
+                    target = None
+                    if target_name:
+                        tgt_local = LOCATORS.get("locators", LOCATORS).get(target_name)
+                        if tgt_local:
+                            target = (tgt_local["LocatorType"], self.resolve_value(tgt_local["LocatorValue"], globaldata))
+                    if source and target:
+                        shot = self.drag_drop(source, target, DefaultTimeout, testcase_dir, step_title, step_desc)
+                elif action == "upload_file" and locator:
+                    shot = self.upload_file(locator, test_data, DefaultTimeout, testcase_dir, step_title, step_desc)                
                 else:
                     pytest.fail(f"[ERROR] Unknown action or missing locator: {action}")
 

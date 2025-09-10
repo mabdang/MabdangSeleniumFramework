@@ -7,6 +7,7 @@ if __name__ == "__main__":
     sys.exit(pytest.main([
         "launcher.py",      # Jalankan sendiri
         "-s", "-v",
+        "-n", "auto", 
         "--capture=tee-sys",
         "--html=reports/latest_report.html",
         "--self-contained-html"
@@ -25,14 +26,11 @@ def test_feature(driver, run_dir, feature_name):
 
     # --- Load testcases dan locators pakai DataLoader ---
     try:
+        LOCATORS = DataLoader.load_locators(folder)
         testcases = DataLoader.load_testcases(folder)
     except FileNotFoundError as e:
         pytest.skip(f"[SKIPPED] {str(e)}")
 
-    try:
-        LOCATORS = DataLoader.load_locators(folder)
-    except FileNotFoundError as e:
-        pytest.skip(f"[SKIPPED] {str(e)}")
 
     # --- Validasi wajib ada keduanya ---
     if not testcases or not LOCATORS:

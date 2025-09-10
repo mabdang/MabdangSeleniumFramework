@@ -5,7 +5,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib import colors
 from PIL import Image as PILImage
-import os
+import os, math
 
 # --------- Header / Footer dengan Page X of Y ---------
 def _header_footer(canvas, doc, meta_info):
@@ -201,15 +201,24 @@ def generate_pdf_report(output_path: str, snapshot: dict):
         ParagraphStyle(name='TOCHeading2', fontName='Helvetica', leftIndent=40, firstLineIndent=-10, leading=11),
     ]
 
-    #Tambahkan setiap test case dan steps
-    page_counter = 4  # mulai halaman konten setelah summary (sesuaikan nanti)
+    page_counter = 4  # halaman pertama konten setelah summary
     for c in cases:
         case_name = f"{c['title']} - {c['scenario_type']}"
         toc_rows.append([case_name, str(page_counter)])
+
+        step_counter = 0
         for s in c["steps"]:
             step_line = f"{s['step_id']}. {s['title']}"
             toc_rows.append(["   " + step_line, str(page_counter)])  # indent step
-            page_counter += 1  # asumsi 1 halaman per step, bisa adjust
+            step_counter += 1
+
+            # [UPDATE] tiap 2 step, halaman baru
+            if step_counter % 2 == 0:
+                page_counter += 1
+
+        # [UPDATE] kalau jumlah step ganjil, naikkan 1 halaman setelah flush
+        if step_counter % 2 != 0:
+            page_counter += 1
 
     # Buat Table TOC
     toc_table = Table(toc_rows, colWidths=[400, 60])
@@ -254,25 +263,42 @@ def generate_pdf_report(output_path: str, snapshot: dict):
         flow.append(Paragraph(case_heading, styles["H1"]))
         flow.append(TOCEntry(case_heading, 0, styles["H1"]))
         flow.append(Spacer(1,4))
-        for s in c["steps"]:
+
+        step_buffer = []  # [UPDATE] buffer 2 step sebelum PageBreak
+        for idx, s in enumerate(c["steps"], start=1):
             step_heading = f"{s['step_id']}. {s['title']}"
-            flow.append(Paragraph(step_heading, styles["H2"]))
-            flow.append(TOCEntry(step_heading, 1, styles["H2"]))
- 
-            flow.append(Spacer(1,6))
+            step_flow = []  # kumpulan komponen 1 step
+            step_flow.append(Paragraph(step_heading, styles["H2"]))
+            step_flow.append(TOCEntry(step_heading, 1, styles["H2"]))
+            step_flow.append(Spacer(1,6))
             if s.get("image") and os.path.exists(s["image"]):
                 try:
                     w,h = _scale_image(s["image"])
-                    flow.append(Image(s["image"], width=w, height=h))
+                    img = Image(s["image"], width=w, height=h)
+                    img_table = Table([[img]], colWidths=[doc.width])
+                    img_table.setStyle(TableStyle([
+                        ("ALIGN", (0,0), (-1,-1), "CENTER")  # ✅ tengah
+                    ]))
+                    step_flow.append(Image(s["image"], width=w, height=h))
                 except:
-                    flow.append(Paragraph("[Gambar gagal dimuat]", styles["Small"]))
+                    step_flow.append(Paragraph("[Gambar gagal dimuat]", styles["Small"]))
             if s.get("description"):
-                flow.append(Paragraph(s["description"], styles["Normal"]))        
-            #st = s.get("status","unknown").upper()
-            #err = s.get("error","")
-            #flow.append(Paragraph(f"Status: <b>{st}</b>" + (f" — Error: {err}" if err else ""), styles["Small"]))
-            #flow.append(Spacer(1,12))
+                step_flow.append(Paragraph(s["description"], styles["Normal"]))        
+
+            step_buffer.extend(step_flow)
+            step_buffer.append(Spacer(1,12))
+
+            # [UPDATE] masukkan 2 step per halaman
+            if idx % 2 == 0:
+                flow.extend(step_buffer)
+                flow.append(PageBreak())
+                step_buffer = []
+
+        # [UPDATE] kalau jumlah step ganjil, flush sisanya
+        if step_buffer:
+            flow.extend(step_buffer)
             flow.append(PageBreak())
+
 
     # ---------------- Build PDF ----------------
     meta_info = {"project": project_name, "author": author, "tools": tools}

@@ -4,50 +4,37 @@ test_cases:
     ScenarioType: "Positive"
     Run: true
     TestSteps:
-      - StepID: 1
-        Title: "Open base URL"
-        Description: "User membuka halaman utama aplikasi"
-        Action: navigate
-        Locator: null
-        TestData: "{global.baseURL}"
-        Expected: "Halaman utama tampil"
-      - StepID: 2
-        Title: "Click login link"
+      - Title: "Click login link"
         Description: "User menekan tombol login untuk masuk ke halaman login"
         Action: click
         Locator: "{global.LoginLink}"
         TestData: null
         Expected: "Halaman login terbuka"
-      - StepID: 3
-        Title: "Input email"
+      - Title: "Input email"
         Description: "User mengetik email valid"
         Action: type
         Locator: "{global.DefaultEmail}"
         TestData: "{global.DefaultEmail}"
         Expected: null
-      - StepID: 4
-        Title: "Input password"
+      - Title: "Input password"
         Description: "User mengetik password valid"
         Action: type
         Locator: "{global.DefaultPassword}"
         TestData: "{global.DefaultPassword}"
         Expected: null
-      - StepID: 5
-        Title: "Click login button"
+      - Title: "Click login button"
         Description: "User menekan tombol login"
         Action: click
         Locator: "{global.LoginButton}"
         TestData: null
         Expected: null
-      - StepID: 6
-        Title: "Verify username"
+      - Title: "Verify username"
         Description: "User berhasil login, username muncul di header"
         Action: assert
         Locator: "{global.username_display}"
         TestData: "{global.DefaultUsername}"
         Expected: "{global.DefaultUsername}"
-      - StepID: 7
-        Title: "Logout"
+      - Title: "Logout"
         Description: "User logout dari aplikasi"
         Action: click
         Locator: "{global.LogoutLink}"
@@ -57,45 +44,39 @@ test_cases:
   - CaseID: TC002
     Title: "Invalid Email Password"
     ScenarioType: "Negative"
-    Run: false
+    Run: true
     TestSteps:
-      - StepID: 1
-        Title: "Open base URL"
+      - Title: "Open base URL"
         Description: "User membuka halaman utama aplikasi"
         Action: navigate
         Locator: null
         TestData: "{global.baseURL}"
         Expected: "Halaman utama tampil"
-      - StepID: 2
-        Title: "Click login link"
+      - Title: "Click login link"
         Description: "User menekan tombol login untuk masuk ke halaman login"
         Action: click
         Locator: "{global.LoginLink}"
         TestData: null
         Expected: "Halaman login terbuka"
-      - StepID: 3
-        Title: "Input invalid email"
+      - Title: "Input invalid email"
         Description: "User memasukkan email yang salah"
         Action: type
         Locator: "{global.DefaultEmail}"
         TestData: "a@email.com"
         Expected: null
-      - StepID: 4
-        Title: "Input invalid password"
+      - Title: "Input invalid password"
         Description: "User memasukkan password yang salah"
         Action: type
         Locator: "{global.DefaultPassword}"
         TestData: "abdan"
         Expected: null
-      - StepID: 5
-        Title: "Click login button"
+      - Title: "Click login button"
         Description: "User menekan tombol login"
         Action: click
         Locator: "{global.LoginButton}"
         TestData: null
         Expected: null
-      - StepID: 6
-        Title: "Verify error message"
+      - Title: "Verify error message"
         Description: "Sistem menampilkan pesan error login gagal"
         Action: assert
         Locator: "InvalidLoginMessage"

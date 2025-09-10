@@ -9,3 +9,6 @@ GlobalData:
   ProjectName: "ProjectSelenium"
   Author: "mabdang"
   Tools: "Selenium"
+  Browser: "chrome" # default browser, bisa chrome/firefox/edge
+  Headless: true # true/false
+  WindowSize: "1920,1080" # fallback untuk headless
