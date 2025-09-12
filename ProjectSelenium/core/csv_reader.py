@@ -8,21 +8,27 @@ class CSVReader:
         with open(filepath, newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                cid = row["CaseID"]
+                cid = row["CaseID"].strip()
                 case = cases[cid]
-                case["CaseID"] = row["CaseID"]
-                case["Title"] = row["Title"]
-                case["ScenarioType"] = row["ScenarioType"]
-                case["Run"] = row["Run"].strip().lower() in ("true","1","yes")
+
+                # --- Case-level data ---
+                case["CaseID"] = cid
+                case["CaseTitle"] = row.get("CaseTitle", "").strip()
+                case["Title"] = case["CaseTitle"]  # ✅ alias supaya kode lama gak error
+                case["ScenarioType"] = row.get("ScenarioType", "").strip()
+                case["Run"] = row.get("Run", "").strip().lower() in ("true", "1", "yes")
+
+                # --- Step-level data ---
                 case["TestSteps"].append({
-                    "StepID": row["StepID"],
-                    "Action": row["Action"],
-                    "Locator": row.get("Locator",""),
-                    "TestData": row.get("TestData",""),
-                    "Expected": row.get("Expected",""),
-                    "Title": row.get("StepTitle",""),        # 🆕 field tambahan untuk judul step
-                    "Description": row.get("Description","") # 🆕 field tambahan untuk deskripsi step
+                    "StepID": str(len(case["TestSteps"]) + 1),  # auto numbering
+                    "Title": row.get("StepTitle", "").strip(),
+                    "Description": row.get("Description", "").strip(),
+                    "Action": row.get("Action", "").strip(),
+                    "Locator": row.get("Locator", "").strip(),
+                    "TestData": row.get("TestData", "").strip(),
+                    "Expected": row.get("Expected", "").strip(),
                 })
+
         return {"test_cases": list(cases.values())}
 
     @staticmethod

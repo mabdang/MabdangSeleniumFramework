@@ -38,21 +38,21 @@ class DataLoader:
                         case_id = row_dict["CaseID"]
 
                         step = {
-                            "StepID": row_dict["StepID"],
-                            "Action": row_dict["Action"],
+                            "Action": row_dict.get("Action"),
                             "Locator": row_dict.get("Locator"),
                             "TestData": row_dict.get("TestData"),
                             "Expected": row_dict.get("Expected"),
-                            "Title": row_dict.get("StepTitle"),       # 🆕 support judul step
-                            "Description": row_dict.get("Description") # 🆕 support deskripsi step
+                            "Title": row_dict.get("StepTitle"),       # ✅ judul step
+                            "Description": row_dict.get("Description") # ✅ deskripsi step
                         }
 
                         if case_id not in testcases:
                             testcases[case_id] = {
                                 "CaseID": case_id,
-                                "Title": row_dict["Title"],
-                                "ScenarioType": row_dict["ScenarioType"],
-                                "Run": str(row_dict["Run"]).lower() in ("true", "yes", "1"),
+                                "CaseTitle": row_dict.get("CaseTitle", "").strip(),
+                                "Title": row_dict.get("CaseTitle", "").strip(),   # ✅ alias biar aman
+                                "ScenarioType": row_dict.get("ScenarioType", "").strip(),
+                                "Run": str(row_dict.get("Run", "")).lower() in ("true", "yes", "1"),
                                 "TestSteps": [],
                             }
 

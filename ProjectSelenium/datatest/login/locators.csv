@@ -1,0 +1,3 @@
+LocatorName,LocatorType,LocatorValue,Description
+username_display,xpath,//a/b,Validasi login
+InvalidLoginMessage,XPATH,"//p[normalize-space(text())='Your email or password is incorrect!']","Pesan error login invalid"

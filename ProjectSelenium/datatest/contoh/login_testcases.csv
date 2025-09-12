@@ -1,16 +1,13 @@
-CaseID,Title,ScenarioType,Run,StepID,Action,Locator,TestData,Expected
-TC001,Valid Login,Positive,TRUE,1,navigate,,{global.baseURL},
-TC001,Valid Login,Positive,TRUE,2,click,{global.LoginLink},,
-TC001,Valid Login,Positive,TRUE,3,type,{global.DefaultEmail},{global.DefaultEmail},
-TC001,Valid Login,Positive,TRUE,4,type,{global.DefaultPassword},{global.DefaultPassword},
-TC001,Valid Login,Positive,TRUE,5,click,{global.LoginButton},,
-TC001,Valid Login,Positive,TRUE,6,assert,{global.username_display},{global.DefaultUsername},{global.DefaultUsername}
-TC001,Valid Login,Positive,TRUE,7,click,{global.LogoutLink},,
-TC002,Invalid Email Password,Negative,TRUE,1,navigate,,{global.baseURL},
-TC002,Invalid Email Password,Negative,TRUE,2,click,{global.LoginLink},,
-TC002,Invalid Email Password,Negative,TRUE,3,type,{global.DefaultEmail},a@email.com,
-TC002,Invalid Email Password,Negative,TRUE,4,type,{global.DefaultPassword},abdan,
-TC002,Invalid Email Password,Negative,TRUE,5,click,{global.LoginButton},,
-TC002,Invalid Email Password,Negative,TRUE,6,assert,InvalidLoginMessage,,Your email or password is incorrect!
-
-
+CaseID,CaseTitle,ScenarioType,Run,StepTitle,Description,Action,Locator,TestData,Expected
+TC001,Valid Login,Positive,TRUE,Click login link,User menekan tombol login untuk masuk ke halaman login,click,{global.LoginLink},,Halaman login terbuka
+TC001,Valid Login,Positive,TRUE,Input email,User mengetik email valid,type,{global.DefaultEmail},{global.DefaultEmail},
+TC001,Valid Login,Positive,TRUE,Input password,User mengetik password valid,type,{global.DefaultPassword},{global.DefaultPassword},
+TC001,Valid Login,Positive,TRUE,Click login button,User menekan tombol login,click,{global.LoginButton},,
+TC001,Valid Login,Positive,TRUE,Verify username,"User berhasil login, username muncul di header",assert,{global.username_display},{global.DefaultUsername},{global.DefaultUsername}
+TC001,Valid Login,Positive,TRUE,Logout,User logout dari aplikasi,click,{global.LogoutLink},,User kembali ke halaman utama
+TC002,Invalid Email Password,Negative,TRUE,Open base URL,User membuka halaman utama aplikasi,navigate,,{global.baseURL},Halaman utama tampil
+TC002,Invalid Email Password,Negative,TRUE,Click login link,User menekan tombol login untuk masuk ke halaman login,click,{global.LoginLink},,Halaman login terbuka
+TC002,Invalid Email Password,Negative,TRUE,Input invalid email,User memasukkan email yang salah,type,{global.DefaultEmail},a@email.com,
+TC002,Invalid Email Password,Negative,TRUE,Input invalid password,User memasukkan password yang salah,type,{global.DefaultPassword},abdan,
+TC002,Invalid Email Password,Negative,TRUE,Click login button,User menekan tombol login,click,{global.LoginButton},,
+TC002,Invalid Email Password,Negative,TRUE,Verify error message,Sistem menampilkan pesan error login gagal,assert,InvalidLoginMessage,,Your email or password is incorrect!
